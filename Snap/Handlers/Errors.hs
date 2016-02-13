@@ -11,6 +11,8 @@ import Snap.Core
 import Snap.Snaplet (Handler, Initializer, getEnvironment, wrapSite)
 import Snap.Snaplet.Heist (HasHeist, render)
 
+import qualified Snap.Handlers.Headers as H
+
 {----------------------------------------------------------------------------------------------------{
                                                                       | Initializers
 }----------------------------------------------------------------------------------------------------}
@@ -33,14 +35,14 @@ from accessing it.
 -}
 
 forbidden :: MonadSnap m => m ()
-forbidden = modifyResponse $ setResponseCode 403
+forbidden = H.forbidden
 
 notFound :: HasHeist b => Handler b v ()
-notFound = modifyResponse (setResponseCode 404) >> render "errors/404"
+notFound = H.notFound >> render "errors/404"
 
 internalServerError :: HasHeist b => Handler b v () -> Handler b v ()
 internalServerError h =
 	catch h (\ (e :: SomeException) -> do
 		logError $ B.pack $ show e
-		modifyResponse (setResponseCode 500)
+		H.internalServerError
 		render "errors/500")
