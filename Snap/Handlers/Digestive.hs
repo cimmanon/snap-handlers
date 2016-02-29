@@ -3,8 +3,11 @@
 module Snap.Handlers.Digestive where
 
 import Snap.Core
+import Snap.Snaplet (Handler)
+import Snap.Snaplet.Heist (renderWithSplices, HasHeist)
 
 import Text.Digestive (Form, validateM)
+import Text.Digestive.Heist (digestiveSplices)
 import Text.Digestive.Snap (runForm)
 import Text.Digestive.View (View(..))
 import Text.Digestive.Types (Result(..))
@@ -14,6 +17,7 @@ import Text.Digestive.Aeson
 import Snap.Extras.JSON (getJSON, writeJSON) -- would like to get rid of this dependency
 
 import Control.Monad ((<=<), liftM)
+import Data.ByteString (ByteString)
 import Data.Monoid
 import Data.Text hiding (head)
 
@@ -31,6 +35,9 @@ errorLookup lookupFunction = either (Left . lookupFunction) Right
 {----------------------------------------------------------------------------------------------------{
                                                                       | General Handlers
 }----------------------------------------------------------------------------------------------------}
+
+renderWithDigestiveSplices :: (HasHeist b, Monoid v) => ByteString -> View Text -> Handler b v ()
+renderWithDigestiveSplices t = renderWithSplices t . digestiveSplices
 
 processForm :: (MonadSnap m, Monoid v) => Text -> Form v m a -> (a -> m (Either v b)) -> (View v -> m ()) -> (b -> m ()) -> m ()
 processForm name f model errorH successH = do

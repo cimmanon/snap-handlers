@@ -34,6 +34,7 @@ library
     snap-extras,
     heist,
     digestive-functors-snap,
+    digestive-functors-heist,
     digestive-functors,
     aeson,
     digestive-functors-aeson,
