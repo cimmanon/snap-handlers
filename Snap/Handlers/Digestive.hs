@@ -8,17 +8,19 @@ import Snap.Snaplet.Heist (renderWithSplices, HasHeist)
 
 import Text.Digestive (Form, validateM)
 import Text.Digestive.Heist (digestiveSplices)
-import Text.Digestive.Snap (runForm)
+import Text.Digestive.Snap (runForm, runFormWith, SnapFormConfig(..))
 import Text.Digestive.View (View(..))
-import Text.Digestive.Types (Result(..))
+import Text.Digestive.Types (Result(..), Method(..))
 
 import Data.Aeson (ToJSON, FromJSON)
 import Text.Digestive.Aeson
 import Snap.Extras.JSON (getJSON, writeJSON) -- would like to get rid of this dependency
+import Snap.Util.FileUploads (defaultUploadPolicy, disallow)
 
 import Control.Monad ((<=<), liftM)
 import Data.ByteString (ByteString)
-import Data.Monoid
+import Data.Monoid (Monoid, mempty)
+import Data.Maybe (fromMaybe)
 import Data.Text hiding (head)
 
 {----------------------------------------------------------------------------------------------------{
@@ -32,6 +34,9 @@ eitherToResult f x = liftM (either Error Success) (f x)
 errorLookup :: (e -> v) -> Either e b -> Either v b
 errorLookup lookupFunction = either (Left . lookupFunction) Right
 
+getFormConfig :: SnapFormConfig
+getFormConfig = SnapFormConfig (Just Post) Nothing defaultUploadPolicy (const disallow)
+
 {----------------------------------------------------------------------------------------------------{
                                                                       | General Handlers
 }----------------------------------------------------------------------------------------------------}
@@ -43,6 +48,11 @@ processForm :: (MonadSnap m, Monoid v) => Text -> Form v m a -> (a -> m (Either 
 processForm name f model errorH successH = do
 	(view, result) <- runForm name $ validateM (eitherToResult model) f
 	maybe (errorH view) successH result
+
+searchForm :: (MonadSnap m, Monoid v) => Text -> Form v m a -> (a -> m [b]) -> (View v -> [b] -> m ()) -> m ()
+searchForm name f getResults viewH = do
+	(view, result) <- runFormWith getFormConfig name f
+	viewH view =<< maybe (return mempty) getResults result
 
 {----------------------------------------------------------------------------------------------------{
                                                                       | JSON Handlers
