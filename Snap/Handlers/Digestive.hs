@@ -8,7 +8,7 @@ import Snap.Snaplet.Heist (renderWithSplices, HasHeist)
 
 import Text.Digestive (Form, validateM)
 import Text.Digestive.Heist (digestiveSplices)
-import Text.Digestive.Snap (runForm, runFormWith, SnapFormConfig(..))
+import Text.Digestive.Snap (runForm, runFormWith, defaultSnapFormConfig, SnapFormConfig(..))
 import Text.Digestive.View (View(..))
 import Text.Digestive.Types (Result(..), Method(..))
 
@@ -45,8 +45,11 @@ renderWithDigestiveSplices :: (HasHeist b, Monoid v) => ByteString -> View Text 
 renderWithDigestiveSplices t = renderWithSplices t . digestiveSplices
 
 processForm :: (MonadSnap m, Monoid v) => Text -> Form v m a -> (a -> m (Either v b)) -> (View v -> m ()) -> (b -> m ()) -> m ()
-processForm name f model errorH successH = do
-	(view, result) <- runForm name $ validateM (eitherToResult model) f
+processForm = processFormWith defaultSnapFormConfig
+
+processFormWith :: (MonadSnap m, Monoid v) => SnapFormConfig -> Text -> Form v m a -> (a -> m (Either v b)) -> (View v -> m ()) -> (b -> m ()) -> m ()
+processFormWith conf name f model errorH successH = do
+	(view, result) <- runFormWith conf name $ validateM (eitherToResult model) f
 	maybe (errorH view) successH result
 
 searchForm :: (MonadSnap m, Monoid v) => Text -> Form v m a -> (a -> m [b]) -> (View v -> [b] -> m ()) -> m ()

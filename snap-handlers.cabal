@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                snap-handlers
-version:             0.1.0.0
+version:             0.1.0.1
 synopsis:            Commonly used collection of handlers used in writing Snap applications
 -- description:
 license:             BSD3
