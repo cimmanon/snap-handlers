@@ -26,7 +26,7 @@ library
   -- other-modules:
 
   build-depends:
-    base >=4.7 && <4.8,
+    base >=4.7 && <4.9,
     bytestring >=0.10 && <0.11,
     text,
     snap,
