@@ -39,6 +39,7 @@ library
     aeson,
     digestive-functors-aeson,
     MonadCatchIO-transformers,
+    lifted-base,
     safe,
     time,
     transformers

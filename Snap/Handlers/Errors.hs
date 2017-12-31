@@ -1,10 +1,14 @@
-{-# LANGUAGE OverloadedStrings, ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings, ScopedTypeVariables, CPP #-}
 
 module Snap.Handlers.Errors where
 
 import Control.Exception (SomeException)
 import Control.Monad (when)
+#if MIN_VERSION_snap(1,0,0)
+import Control.Exception.Lifted (catch)
+#else
 import Control.Monad.CatchIO (catch)
+#endif
 import qualified Data.ByteString.Char8 as B
 
 import Snap.Core
